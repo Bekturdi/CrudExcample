@@ -3,30 +3,35 @@ package controllers
 import akka.actor.ActorRef
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
+
 import javax.inject._
 import org.webjars.play.WebJarsUtil
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import protocols.ExampleProtocol.{Create, Delete, Example, GetList, Update}
-import views.html.index
+import protocols.ExampleProtocol._
+import views.html._
 import akka.pattern.ask
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.DurationInt
 
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                implicit val webJarsUtil: WebJarsUtil,
                                @Named("example-manager") val exampleManager: ActorRef,
-                               indexTemplate: index
+                               indexTemplate: index,
+                               loginTemplate: login
                               )
                               (implicit val ec: ExecutionContext)
   extends BaseController with LazyLogging {
 
   implicit val defaultTimeout: Timeout = Timeout(60.seconds)
 
+  def login: Action[AnyContent] = Action {
+    Ok(loginTemplate())
+  }
 
-  def index = Action {
+  def index: Action[AnyContent] = Action {
     Ok(indexTemplate())
   }
 

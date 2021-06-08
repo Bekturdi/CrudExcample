@@ -1,28 +1,60 @@
 @import controllers.routes
-@(title: String,  webJarsUtil: org.webjars.play.WebJarsUtil)(content: Html)
+@(title: String, webJarsUtil: org.webjars.play.WebJarsUtil)(content: Html)
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>@title</title>
-        <meta charset="utf-8">
-        <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        @webJarsUtil.locate("css/bootstrap.min.css").css()
-        @webJarsUtil.locate("build/toastr.min.css").css()
+  <head>
+    <title>@title</title>
+    <meta charset="utf-8">
+    <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>
+      .login-form {
+        width: 340px;
+        margin: 50px auto;
+        font-size: 15px;
+      }
 
-        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
-        @webJarsUtil.locate("jquery.min.js").script()
-        @webJarsUtil.locate("js/bootstrap.min.js").script()
-        @webJarsUtil.locate("knockout.js").script()
-        <script src="@routes.Assets.versioned("javascripts/common.assist.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.versioned("lib/knockout.mapping-latest.js")" type="text/javascript"></script>
-        <script src="@routes.Assets.versioned("javascripts/example.js")" type="text/javascript"></script>
-        @webJarsUtil.locate("toastr.min.js").script()
+      .login-form form {
+        margin-bottom: 15px;
+        background: #f7f7f7;
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        padding: 30px;
+      }
 
-    </head>
-    <body>
-        @content
-    </body>
+      .login-form h2 {
+        margin: 0 0 15px;
+      }
+
+      .form-control, .btn {
+        min-height: 38px;
+        border-radius: 2px;
+      }
+
+      .btn {
+        font-size: 15px;
+        font-weight: bold;
+      }
+    </style>
+    @webJarsUtil.locate("css/bootstrap.min.css").css()
+    @webJarsUtil.locate("build/toastr.min.css").css()
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+    @webJarsUtil.locate("jquery.min.js").script()
+    @webJarsUtil.locate("js/bootstrap.min.js").script()
+    @webJarsUtil.locate("knockout.js").script()
+    @webJarsUtil.locate("toastr.min.js").script()
+    @webJarsUtil.locate("jquery.js").script()
+    @webJarsUtil.locate("umd/popper.js").script()
+    @webJarsUtil.locate("js/bootstrap.min.js").script()
+    @webJarsUtil.locate("js/bootstrap.min.js").script()
+    @webJarsUtil.locate("js/bootstrap.bundle.min.js").script()
+    @webJarsUtil.locate("toastr.js").script()
+    <script src="@routes.Assets.versioned("javascripts/common.assist.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("lib/knockout.mapping-latest.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.versioned("javascripts/example.js")" type="text/javascript"></script>
+  </head>
+  <body>
+  @content
+  </body>
 </html>

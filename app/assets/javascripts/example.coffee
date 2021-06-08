@@ -8,6 +8,11 @@ $ ->
     get: '/get'
     delete: '/delete'
     update: '/update'
+    loginPost: '/loginPost'
+
+  defaultLogin =
+    login: ''
+    password: ''
 
   vm = ko.mapping.fromJS
     name: ''
@@ -16,12 +21,27 @@ $ ->
     tel: ''
     age: ''
     address: ''
+    login: defaultLogin
 
   handleError = (error) ->
     if error.status is 500 or (error.status is 400 and error.responseText)
       toastr.error(error.responseText)
     else
       toastr.error('Something went wrong! Please try again.')
+
+  vm.loginPost = ->
+    toastr.clear()
+    if !vm.login.login()
+      toastr.error("""Iltimos "Login" ni kiriting!""")
+    else if !vm.login.password()
+      toastr.error("""Iltimos "Password" ni kiriting!""")
+    else
+      defaultLogin = "admin"
+      defaultPassword = "admin123"
+      if vm.login.login() is defaultLogin and vm.login.password() is defaultPassword
+        window.location.href = '/index'
+      else
+        toastr.error("Qaytadan urinib ko`ring Login yoki Password xato bo`lishi mumkin!")
 
   vm.onSubmit = ->
     toastr.clear()
