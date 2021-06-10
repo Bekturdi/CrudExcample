@@ -63,5 +63,5 @@ scalaVersion := "2.12.2"
     "org.webjars" % "bootstrap" % "4.3.1",
     "org.webjars" % "momentjs" % "2.8.1",
     "org.webjars" % "popper.js" % "2.9.2",
-    "org.webjars" % "font-awesome" % "4.7.0")
-      
+    "org.webjars" % "font-awesome" % "5.14.0",
+    "org.webjars" % "bootstrap-datepicker" % "1.9.0")
