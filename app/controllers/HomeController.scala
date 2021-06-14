@@ -12,6 +12,7 @@ import protocols.ExampleProtocol._
 import views.html._
 import akka.pattern.ask
 
+import java.util.Date
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.DurationInt
 
@@ -39,8 +40,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     val section = (request.body \ "section").as[String]
     val documentType = (request.body \ "documentType").as[String]
     val subDocumentType = (request.body \ "subDocumentType").as[String]
-    (exampleManager ? Documents(section, documentType, subDocumentType)).mapTo[Int].map { id =>
-      Ok(Json.toJson(id))
+    val data = Documents(createAt = new Date(), section = section, documentType = documentType, subDocumentType = subDocumentType)
+    (exampleManager ? CmdDocuments(data)).mapTo[Int].map { id =>
+      Ok(Json.toJson("Hujjat muvaffaqiyatli qo`shildi"))
+    }.recover { case error =>
+      logger.error("Hujjatni saqlashda xatolik yuz berdi. ", error)
+      BadRequest("Hujjatni saqlashda xatolik yuz berdi. Iltimos qytadan urinib ko`ring.")
     }
   }
 

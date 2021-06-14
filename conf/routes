@@ -5,7 +5,7 @@ POST     /create                    controllers.HomeController.create
 GET      /get                       controllers.HomeController.getNames
 DELETE   /delete                    controllers.HomeController.delete
 POST     /update                    controllers.HomeController.update
-POST     /save-new-document         controllers.HomeController.update
+POST     /save-new-document         controllers.HomeController.saveNewDocuments
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

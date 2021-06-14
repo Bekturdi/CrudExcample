@@ -50,6 +50,8 @@ $ ->
       else
         toastr.error("Qaytadan urinib ko`ring Login yoki Password xato bo`lishi mumkin!")
 
+  $documentModal = $('#document-save')
+
   vm.saveDocument = ->
     toastr.clear()
     if !vm.documents.section() and vm.documents.section() is 'tanlang'
@@ -63,6 +65,7 @@ $ ->
       $.post(apiUrl.saveDocuments, JSON.stringify(data))
       .fail handleError
       .done (res) ->
+        $documentModal.modal('hide')
         toastr.success(res)
 
   vm.onSubmit = ->

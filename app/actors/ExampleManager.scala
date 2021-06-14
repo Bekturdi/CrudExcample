@@ -3,16 +3,17 @@ package actors
 import akka.actor.{Actor, ActorLogging}
 import akka.pattern.pipe
 import akka.util.Timeout
-import dao.ExampleDao
-import javax.inject.Inject
+import dao._
 import play.api.Environment
 import protocols.ExampleProtocol._
 
+import javax.inject.Inject
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 class ExampleManager @Inject()(val environment: Environment,
-                               exampleDao: ExampleDao
+                               exampleDao: ExampleDao,
+                               documentsDao: DocumentsDao
                               )
                               (implicit val ec: ExecutionContext)
   extends Actor with ActorLogging {
@@ -32,14 +33,14 @@ class ExampleManager @Inject()(val environment: Environment,
     case GetList =>
       getList.pipeTo(sender())
 
-    case Documents(section, documentType, subDocumentType) =>
-
+    case CmdDocuments(documents) =>
+      saveDocuments(documents).pipeTo(sender())
 
     case _ => log.info(s"received unknown message")
   }
 
-  private def saveDocuments(section: String, documentType: String, subDocumentType: String): Future[Int] = {
-    exampleDao.saveDocuments(section, documentType, subDocumentType)
+  private def saveDocuments(documents: Documents): Future[Int] = {
+    documentsDao.saveDocuments(documents.createAt, documents.section, documents.documentType, documents.subDocumentType)
   }
 
   private def create(data: Example): Future[Int] = {
@@ -60,3 +61,4 @@ class ExampleManager @Inject()(val environment: Environment,
   }
 
 }
+

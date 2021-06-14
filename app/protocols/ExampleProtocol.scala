@@ -1,7 +1,6 @@
 package protocols
 
 import play.api.libs.json.{Json, OFormat}
-import utils.Date2SqlDate
 
 import java.util.Date
 
@@ -24,7 +23,13 @@ object ExampleProtocol {
                     )
   implicit val studentFormat: OFormat[Example] = Json.format[Example]
 
-  case class Documents(id: Option[Int] = None, createAt: Date2SqlDate, section: String, documentType: String, subDocumentType: String)
+  case class Documents(id: Option[Int] = None,
+                       createAt: Date,
+                       section: String,
+                       documentType: String,
+                       subDocumentType: String
+                      )
+  case class CmdDocuments(documents: Documents)
 
   implicit val documentFormat: OFormat[Documents] = Json.format[Documents]
 }
