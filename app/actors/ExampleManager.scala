@@ -19,21 +19,27 @@ class ExampleManager @Inject()(val environment: Environment,
 
   implicit val defaultTimeout: Timeout = Timeout(60.seconds)
 
-  def receive = {
+  def receive: Receive = {
     case Create(data) =>
-      log.warning(s"menagerga keldi: $data")
       create(data).pipeTo(sender())
 
-        case Update(data) =>
-          update(data).pipeTo(sender())
+    case Update(data) =>
+      update(data).pipeTo(sender())
 
-        case Delete(id) =>
-          delete(id).pipeTo(sender())
+    case Delete(id) =>
+      delete(id).pipeTo(sender())
 
-        case GetList =>
-          getList.pipeTo(sender())
+    case GetList =>
+      getList.pipeTo(sender())
+
+    case Documents(section, documentType, subDocumentType) =>
+
 
     case _ => log.info(s"received unknown message")
+  }
+
+  private def saveDocuments(section: String, documentType: String, subDocumentType: String): Future[Int] = {
+    exampleDao.saveDocuments(section, documentType, subDocumentType)
   }
 
   private def create(data: Example): Future[Int] = {

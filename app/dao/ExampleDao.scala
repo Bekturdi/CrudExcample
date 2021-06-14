@@ -3,13 +3,23 @@ package dao
 import akka.actor.ActorSystem
 import com.google.inject.ImplementedBy
 import com.typesafe.scalalogging.LazyLogging
+
 import javax.inject.{Inject, Singleton}
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
-import protocols.ExampleProtocol.Example
+import protocols.ExampleProtocol.{Documents, Example}
 import slick.jdbc.JdbcProfile
-import utils.Date2SqlDate
 
+import java.util.Date
 import scala.concurrent.{ExecutionContext, Future}
+import java.util.Date
+import javax.inject.{Inject, Singleton}
+import com.google.inject.ImplementedBy
+import com.typesafe.scalalogging.LazyLogging
+import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
+import slick.jdbc.JdbcProfile
+import slick.lifted.MappedToBase.mappedToIsomorphism
+
+import scala.concurrent.Future
 
 
 trait ExampleComponent {
@@ -31,11 +41,23 @@ trait ExampleComponent {
     def * = (id.?, name, tel, age, address) <> (Example.tupled, Example.unapply _)
   }
 
+  class DocumentsTable(tag: Tag) extends Table[Documents](tag, "document") with Date2SqlDate {
+
+    def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+    def createAt = column[Date]("createAt")
+    def section = column[String]("section")
+    def documentType = column[String]("documentType")
+    def subDocumentType = column[String]("subDocumentType")
+
+    def * = (id.?, createAt.?, section.?, documentType.?, subDocumentType.?) <> (Documents.tupled, Documents.unapply _)
+  }
 }
 
 @ImplementedBy(classOf[ExampleDaoImpl])
 trait ExampleDao {
   def create(data: Example): Future[Int]
+
+  def saveDocuments(section: String, documentType: String, subDocumentType: String): Future[Int]
 
   def getAll: Future[Seq[Example]]
 
@@ -57,6 +79,15 @@ class ExampleDaoImpl @Inject()(protected val dbConfigProvider: DatabaseConfigPro
   import utils.PostgresDriver.api._
 
   val examplesTable = TableQuery[ExampleTable]
+
+  val documentTable = TableQuery[DocumentsTable]
+
+  override def saveDocuments(section: String, documentType: String, subDocumentType: String): Future[Int] = {
+    val data = Documents(section, documentType, subDocumentType)
+    db.run {
+      (documentTable returning documentTable.map(_.id)) += data
+    }
+  }
 
   override def create(data: Example): Future[Int] = {
     db.run {

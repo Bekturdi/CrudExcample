@@ -35,6 +35,15 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     Ok(indexTemplate())
   }
 
+  def saveNewDocuments: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    val section = (request.body \ "section").as[String]
+    val documentType = (request.body \ "documentType").as[String]
+    val subDocumentType = (request.body \ "subDocumentType").as[String]
+    (exampleManager ? Documents(section, documentType, subDocumentType)).mapTo[Int].map { id =>
+      Ok(Json.toJson(id))
+    }
+  }
+
   def create: Action[JsValue] = Action.async(parse.json) { implicit request =>
     val name = (request.body \ "name").as[String]
     val tel = (request.body \ "tel").as[String]

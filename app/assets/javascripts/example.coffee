@@ -9,10 +9,16 @@ $ ->
     delete: '/delete'
     update: '/update'
     loginPost: '/loginPost'
+    saveDocuments: '/save-new-document'
 
   defaultLogin =
     login: ''
     password: ''
+
+  defaultDocument =
+    section: ''
+    documentType: ''
+    subDocumentType: ''
 
   vm = ko.mapping.fromJS
     name: ''
@@ -22,6 +28,7 @@ $ ->
     age: ''
     address: ''
     login: defaultLogin
+    documents: defaultDocument
 
   handleError = (error) ->
     if error.status is 500 or (error.status is 400 and error.responseText)
@@ -42,6 +49,21 @@ $ ->
         window.location.href = '/index'
       else
         toastr.error("Qaytadan urinib ko`ring Login yoki Password xato bo`lishi mumkin!")
+
+  vm.saveDocument = ->
+    toastr.clear()
+    if !vm.documents.section() and vm.documents.section() is 'tanlang'
+      toastr.error('Iltimos bo`limni tanlang!')
+    else if !vm.documents.documentType() and vm.documents.documentType() is 'tanlang'
+      toastr.error('Iltimos hujjat turini tanlang!')
+    else if vm.documents.documentType() is 'boshqa' and !vm.documents.subDocumentType()
+      toastr.error('Iltimos hujjat turini kiriting!')
+    else
+      data = ko.mapping.toJS vm.documents
+      $.post(apiUrl.saveDocuments, JSON.stringify(data))
+      .fail handleError
+      .done (res) ->
+        toastr.success(res)
 
   vm.onSubmit = ->
     toastr.clear()
