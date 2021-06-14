@@ -6,6 +6,7 @@ $ ->
   apiUrl =
     send: '/create'
     get: '/get'
+    getDocuments: '/get-documents'
     delete: '/delete'
     update: '/update'
     loginPost: '/loginPost'
@@ -29,12 +30,16 @@ $ ->
     address: ''
     login: defaultLogin
     documents: defaultDocument
+    getDocumentsList: []
 
   handleError = (error) ->
     if error.status is 500 or (error.status is 400 and error.responseText)
       toastr.error(error.responseText)
     else
       toastr.error('Something went wrong! Please try again.')
+
+  vm.convertIntToDateTime = (intDate)->
+    moment(parseInt(intDate)).format('MMM DD, YYYY HH:mm:ss')
 
   vm.loginPost = ->
     toastr.clear()
@@ -109,6 +114,13 @@ $ ->
       console.log('1: ', vm.getList().length)
       vm.getList(response)
       console.log('2: ', vm.getList().length)
+
+  getDocuments = ->
+    $.get(apiUrl.getDocuments)
+    .fail handleError
+    .done (response) ->
+      vm.getDocumentsList(response)
+  getDocuments()
 
   vm.delete = ->
     if window.confirm(" Do you want to delete it?" )

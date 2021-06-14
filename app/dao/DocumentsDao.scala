@@ -3,7 +3,7 @@ import akka.actor.ActorSystem
 import com.google.inject.ImplementedBy
 import com.typesafe.scalalogging.LazyLogging
 import play.api.db.slick.{DatabaseConfigProvider, HasDatabaseConfigProvider}
-import protocols.ExampleProtocol.Documents
+import protocols.ExampleProtocol.{Documents, Example}
 import slick.jdbc.JdbcProfile
 import utils.Date2SqlDate
 
@@ -36,6 +36,7 @@ trait DocumentsComponent {
 trait DocumentsDao {
 		def saveDocuments(createAt: Date, section: String, documentType: String, subDocumentType: String): Future[Int]
 
+		def getDocuments: Future[Seq[Documents]]
 	}
 
 	@Singleton
@@ -56,6 +57,12 @@ trait DocumentsDao {
 			val data = Documents(createAt = createAt, section = section, documentType = documentType, subDocumentType = subDocumentType)
 			db.run {
 				(documentTable returning documentTable.map(_.id)) += data
+			}
+		}
+
+		override def getDocuments: Future[Seq[Documents]] = {
+			db.run {
+				documentTable.result
 			}
 		}
 	}

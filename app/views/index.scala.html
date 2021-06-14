@@ -74,6 +74,35 @@
     </div>
   </div>
 
+  <div class="row">
+    <div class="col-md-6 offset-3">
+      <div class="row">
+        <div class=" text-center">
+          <table class="table table-bordered table-hover mt-5" data-bind=" vm.getDocumentsList().length > 0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Sanasi</th>
+                <th>Bo`lim</th>
+                <th>Hujjat turi</th>
+              </tr>
+            </thead>
+            <tbody data-bind="foreach: vm.getDocumentsList">
+              <tr>
+                <td data-bind="text: $data.id"></td>
+                <td data-bind="text: $root.vm.convertIntToDateTime($data.createAt)"></td>
+                <td data-bind="text: $data.section"></td>
+                <td data-bind="text: $data.documentType == 'boshqa' ? $data.subDocumentType : $data.documentType"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  </div>
+
     @*<div class="container">
       <div class="row">
         <div class="offset-3 col-md-9 mt-5  ">

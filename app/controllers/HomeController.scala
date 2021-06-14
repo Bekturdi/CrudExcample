@@ -49,6 +49,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     }
   }
 
+  def getDocuments: Action[AnyContent] = Action.async {
+    (exampleManager ? GetDocuments).mapTo[Seq[Documents]].map{  doc =>
+      Ok(Json.toJson(doc))
+    }
+  }
+
   def create: Action[JsValue] = Action.async(parse.json) { implicit request =>
     val name = (request.body \ "name").as[String]
     val tel = (request.body \ "tel").as[String]

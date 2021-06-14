@@ -36,11 +36,18 @@ class ExampleManager @Inject()(val environment: Environment,
     case CmdDocuments(documents) =>
       saveDocuments(documents).pipeTo(sender())
 
+    case GetDocuments =>
+      getDocuments.pipeTo(sender())
+
     case _ => log.info(s"received unknown message")
   }
 
   private def saveDocuments(documents: Documents): Future[Int] = {
     documentsDao.saveDocuments(documents.createAt, documents.section, documents.documentType, documents.subDocumentType)
+  }
+
+  private def getDocuments: Future[Seq[Documents]] = {
+    documentsDao.getDocuments
   }
 
   private def create(data: Example): Future[Int] = {

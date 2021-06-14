@@ -9,6 +9,8 @@ object ExampleProtocol {
 
   case object GetList
 
+  case object GetDocuments
+
   case class Delete(id: Int)
 
   case class Update(update: Example)
