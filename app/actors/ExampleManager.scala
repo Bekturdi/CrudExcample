@@ -45,11 +45,15 @@ class ExampleManager @Inject()(val environment: Environment,
     case GetDocumentsByDocType(docType) =>
       getDocumentsByDocType(docType).pipeTo(sender())
 
+    case DeleteDocuments(id) =>
+      deleteDocuments(id).pipeTo(sender())
+
     case _ => log.info(s"received unknown message")
   }
 
   private def saveDocuments(documents: Documents): Future[Int] = {
-    documentsDao.saveDocuments(documents.createAt, documents.section, documents.documentType, documents.subDocumentType)
+    documentsDao.saveDocuments(documents.createAt, documents.section, documents.documentType, documents.subDocumentType,
+      documents.group, documents.executive)
   }
 
   private def getDocuments: Future[Seq[Documents]] = {
@@ -62,6 +66,10 @@ class ExampleManager @Inject()(val environment: Environment,
 
   private def getDocumentsByDocType(docType: String): Future[Seq[Documents]] = {
     documentsDao.getDocumentsByDocType(docType)
+  }
+
+  private def deleteDocuments(id: Int): Future[Int] = {
+    documentsDao.deleteDocuments(id)
   }
 
   private def create(data: Example): Future[Int] = {

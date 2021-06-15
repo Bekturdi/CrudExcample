@@ -54,7 +54,11 @@
                 <th>ID</th>
                 <th>Sanasi</th>
                 <th>Bo`lim</th>
+                <th>Guruh</th>
                 <th>Hujjat turi</th>
+                <th>Ijro Etuvchi</th>
+@*                <th>Hujjat holati</th>*@
+                <th>Harakatlar</th>
               </tr>
             </thead>
             <tbody data-bind="foreach: vm.getDocumentsList">
@@ -62,7 +66,25 @@
                 <td data-bind="text: $data.id"></td>
                 <td data-bind="text: $root.vm.convertIntToDateTime($data.createAt)"></td>
                 <td data-bind="text: $root.vm.getSectionName($data.section)"></td>
+                <td data-bind="text: $data.group"></td>
                 <td data-bind="text: $data.documentType == 'boshqa' ? $data.subDocumentType : $root.vm.getDocumentsName($data.documentType)"></td>
+                <td data-bind="text: $data.executive"></td>
+                @*<td >
+                  <div class="">
+                    <select class="form-control" data-bind="value: $data.status" id="type">
+                      <option value="holati">Holati</option>
+                      <option value="inprogress">Ish jarayonida</option>
+                      <option value="onhold">Kechiktirilgan</option>
+                      <option value="complete">Bajarildi</option>
+                      <option value="inreview">Ko`rib chiqildi</option>
+                      <option value="discuss">Muhokamada</option>
+                    </select>
+                  </div>
+                </td>*@
+                <td>
+                  <span data-bind="click: $root.vm.askDelete($data.id)" class="cursor-pointer" type="button"><i class="fa fa-trash m-r-5 text-danger"></i>
+                    </span>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -100,6 +122,12 @@
                   </select>
                 </div>
               </div>
+              <div class="form-group row" data-bind="visible: vm.documents.section() == 'student'">
+                <label for="group" class="col-sm-3 col-form-label text-right">Guruh:</label>
+                <div class="col-sm-9">
+                  <input type="text" class="form-control" data-bind="value: vm.documents.group" placeholder="Guruh">
+                </div>
+              </div>
               <div class="form-group row">
                 <label for="type" class="col-sm-3 col-form-label text-right">Hujjat turi:</label>
                 <div class="col-sm-9">
@@ -119,6 +147,12 @@
                   <input type="text" class="form-control" data-bind="value: vm.documents.subDocumentType" placeholder="Hujjat turi">
                 </div>
               </div>
+              <div class="form-group row">
+                <label for="type" class="col-sm-3 col-form-label text-right">Ijro etuvchi Ismi Familiya:</label>
+                <div class="col-sm-9 ">
+                  <input type="text" class="form-control" data-bind="value: vm.documents.executive" placeholder="Hujjat turi">
+                </div>
+              </div>
             </form>
           </div>
         </div>
@@ -128,6 +162,21 @@
       </div>
     </div>
   </div>
+
+  <div id="delete-documents" class="modal fade delete-modal" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-body text-center">
+          <h3>Hujjatni o`chirishga ishonchingiz komilmi?</h3>
+          <div class="m-t-20">
+            <button type="submit" data-bind="click: vm.deleteDocument" class="btn btn-danger">Ha</button>
+            <a href="#" class="btn btn-white" id="close_modal" data-dismiss="modal">Orqaga</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   @*<div class="container">
   <div class="row">
   <div class="offset-3 col-md-9 mt-5 ">

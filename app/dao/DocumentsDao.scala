@@ -20,28 +20,29 @@ trait DocumentsComponent {
 
   class DocumentsTable(tag: Tag) extends Table[Documents](tag, "documents") with Date2SqlDate {
     def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-
     def createAt = column[Date]("createAt")
-
     def section = column[String]("section")
-
     def documentType = column[String]("documentType")
-
     def subDocumentType = column[String]("subDocumentType")
+    def group = column[String]("group")
+    def executive = column[String]("executive")
 
-    def * = (id.?, createAt, section, documentType, subDocumentType) <> (Documents.tupled, Documents.unapply _)
+    def * = (id.?, createAt, section, documentType, subDocumentType, group.?, executive.?) <> (Documents.tupled, Documents.unapply _)
   }
 }
 
 @ImplementedBy(classOf[DocumentsDaoImpl])
 trait DocumentsDao {
-  def saveDocuments(createAt: Date, section: String, documentType: String, subDocumentType: String): Future[Int]
+  def saveDocuments(createAt: Date, section: String, documentType: String, subDocumentType: String, group: Option[String] = None,
+                    executive: Option[String] = None): Future[Int]
 
   def getDocuments: Future[Seq[Documents]]
 
   def getDocumentsBySection(section: Option[String] = None): Future[Seq[Documents]]
 
   def getDocumentsByDocType(section: String): Future[Seq[Documents]]
+
+  def deleteDocuments(id: Int): Future[Int]
 }
 
 @Singleton
@@ -58,8 +59,10 @@ class DocumentsDaoImpl @Inject()(protected val dbConfigProvider: DatabaseConfigP
 
   val documentTable = TableQuery[DocumentsTable]
 
-  override def saveDocuments(createAt: Date, section: String, documentType: String, subDocumentType: String): Future[Int] = {
-    val data = Documents(createAt = createAt, section = section, documentType = documentType, subDocumentType = subDocumentType)
+  override def saveDocuments(createAt: Date, section: String, documentType: String, subDocumentType: String, group: Option[String] = None,
+                             executive: Option[String] = None): Future[Int] = {
+    val data = Documents(createAt = createAt, section = section, documentType = documentType, subDocumentType = subDocumentType,
+      group = group, executive = executive)
     db.run {
       (documentTable returning documentTable.map(_.id)) += data
     }
@@ -81,6 +84,12 @@ class DocumentsDaoImpl @Inject()(protected val dbConfigProvider: DatabaseConfigP
   override def getDocumentsByDocType(docType: String): Future[Seq[Documents]] = {
     db.run {
       documentTable.filter(_.documentType === docType).result
+    }
+  }
+
+  override def deleteDocuments(id: Int): Future[Int] = {
+    db.run{
+      documentTable.filter(_.id === id).delete
     }
   }
 }

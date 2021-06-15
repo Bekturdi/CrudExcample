@@ -40,12 +40,27 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     val section = (request.body \ "section").as[String]
     val documentType = (request.body \ "documentType").as[String]
     val subDocumentType = (request.body \ "subDocumentType").as[String]
-    val data = Documents(createAt = new Date(), section = section, documentType = documentType, subDocumentType = subDocumentType)
+    val group = (request.body \ "group").as[String]
+    val executive = (request.body \ "executive").as[String]
+    val data = Documents(createAt = new Date(), section = section, documentType = documentType,
+      subDocumentType = subDocumentType, group = group.some, executive = executive.some)
     (exampleManager ? CmdDocuments(data)).mapTo[Int].map { id =>
       Ok(Json.toJson("Hujjat muvaffaqiyatli qo`shildi"))
     }.recover { case error =>
       logger.error("Hujjatni saqlashda xatolik yuz berdi. ", error)
       BadRequest("Hujjatni saqlashda xatolik yuz berdi. Iltimos qytadan urinib ko`ring.")
+    }
+  }
+
+  def deleteDocuments(): Action[JsValue] = Action.async(parse.json) { implicit request =>
+    val id = (request.body \ "id").as[Int]
+    (exampleManager ? DeleteDocuments(id)).mapTo[Int].map { i =>
+      if (i != 0) {
+        Ok(Json.toJson("Hujjat o`chirildi"))
+      }
+      else {
+        Ok("Bunday Hujjat topilmadi")
+      }
     }
   }
 

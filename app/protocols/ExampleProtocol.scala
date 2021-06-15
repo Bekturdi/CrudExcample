@@ -29,7 +29,9 @@ object ExampleProtocol {
                        createAt: Date,
                        section: String,
                        documentType: String,
-                       subDocumentType: String
+                       subDocumentType: String,
+                       group: Option[String] = None,
+                       executive: Option[String] = None
                       )
   case class CmdDocuments(documents: Documents)
 
@@ -45,5 +47,7 @@ object ExampleProtocol {
                        )
 
   implicit val reportFormFormat: OFormat[ReportForm] = Json.format[ReportForm]
+
+  case class DeleteDocuments(id: Int)
 }
 

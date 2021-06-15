@@ -13,6 +13,7 @@ $ ->
     saveDocuments: '/save-new-document'
     getDocumentsBySection: '/get-documents-by-section'
     getDocumentsByDocumentType: '/get-documents-by-docType'
+    deleteDocument: '/delete-document'
 
   defaultLogin =
     login: ''
@@ -22,6 +23,8 @@ $ ->
     section: ''
     documentType: ''
     subDocumentType: ''
+    group: ''
+    executive: ''
 
   vm = ko.mapping.fromJS
     name: ''
@@ -36,6 +39,8 @@ $ ->
     filter:
       section: ''
       documentType: ''
+    selected:
+      id: ''
 
 
   handleError = (error) ->
@@ -62,6 +67,7 @@ $ ->
         toastr.error("Qaytadan urinib ko`ring Login yoki Password xato bo`lishi mumkin!")
 
   $documentModal = $('#document-save')
+  $deleteDocumentModal = $('#delete-documents')
 
   vm.addDocuments = ->
     $documentModal.modal('show')
@@ -123,6 +129,21 @@ $ ->
       console.log('1: ', vm.getList().length)
       vm.getList(response)
       console.log('2: ', vm.getList().length)
+
+  vm.askDelete = (id) -> ->
+    vm.selected.id(id)
+    $deleteDocumentModal.modal('show')
+
+  vm.deleteDocument = ->
+    toastr.clear()
+    data =
+      id: vm.selected.id()
+    $.post(apiUrl.deleteDocument, JSON.stringify(data))
+    .fail handleError
+    .done (res) ->
+      $deleteDocumentModal.modal('hide')
+      getDocuments()
+      toastr.success(res)
 
   getDocuments = ->
     $.get(apiUrl.getDocuments)

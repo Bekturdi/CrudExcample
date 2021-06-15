@@ -6,3 +6,5 @@ CREATE TABLE "documents" (
     "subDocumentType" VARCHAR NULL
 );
 DROP TABLE "documents";
+ALTER TABLE "documents" ADD COLUMN "group" VARCHAR NULL;
+ALTER TABLE "documents" ADD COLUMN "executive" VARCHAR NULL;
