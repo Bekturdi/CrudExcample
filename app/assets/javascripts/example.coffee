@@ -11,6 +11,8 @@ $ ->
     update: '/update'
     loginPost: '/loginPost'
     saveDocuments: '/save-new-document'
+    getDocumentsBySection: '/get-documents-by-section'
+    getDocumentsByDocumentType: '/get-documents-by-docType'
 
   defaultLogin =
     login: ''
@@ -31,6 +33,10 @@ $ ->
     login: defaultLogin
     documents: defaultDocument
     getDocumentsList: []
+    filter:
+      section: ''
+      documentType: ''
+
 
   handleError = (error) ->
     if error.status is 500 or (error.status is 400 and error.responseText)
@@ -57,11 +63,15 @@ $ ->
 
   $documentModal = $('#document-save')
 
+  vm.addDocuments = ->
+    $documentModal.modal('show')
+
   vm.saveDocument = ->
     toastr.clear()
-    if !vm.documents.section() and vm.documents.section() is 'tanlang'
+    console.log vm.documents.section()
+    if vm.documents.section() is 'tanlang'
       toastr.error('Iltimos bo`limni tanlang!')
-    else if !vm.documents.documentType() and vm.documents.documentType() is 'tanlang'
+    else if vm.documents.documentType() is 'tanlang'
       toastr.error('Iltimos hujjat turini tanlang!')
     else if vm.documents.documentType() is 'boshqa' and !vm.documents.subDocumentType()
       toastr.error('Iltimos hujjat turini kiriting!')
@@ -70,6 +80,7 @@ $ ->
       $.post(apiUrl.saveDocuments, JSON.stringify(data))
       .fail handleError
       .done (res) ->
+        getDocuments()
         $documentModal.modal('hide')
         toastr.success(res)
 
@@ -103,8 +114,6 @@ $ ->
       .done (response) ->
         toastr.success(response)
 
-
-
   vm.getAllNames = ->
     $.ajax
       url: apiUrl.get
@@ -121,6 +130,60 @@ $ ->
     .done (response) ->
       vm.getDocumentsList(response)
   getDocuments()
+
+  vm.getDocumentsBySection = (section) ->
+    $.get(apiUrl.getDocumentsBySection + "/#{section}")
+    .fail handleError
+    .done (response) ->
+      vm.getDocumentsList(response)
+
+  vm.getDocumentsByDocumentType = (docType) ->
+    $.get(apiUrl.getDocumentsByDocumentType + "/#{docType}")
+    .fail handleError
+    .done (response) ->
+      vm.getDocumentsList(response)
+
+  vm.filter.section.subscribe (value) ->
+    if value is 'all'
+      getDocuments()
+    else
+      vm.getDocumentsBySection(value)
+
+  vm.filter.documentType.subscribe (value) ->
+    if value is 'all'
+      getDocuments()
+    else
+      vm.getDocumentsByDocumentType(value)
+
+  vm.getSectionName = (name) ->
+    if name is 'teacher'
+      'Professor-O`qtuvchilar'
+    else if name is 'scientificWorks'
+      'Ilmiy ishlar'
+    else if name is 'student'
+      'Talabalar'
+    else if name is 'akt'
+      'AKT'
+    else if name is 'kafedralar'
+      'Kafedralar'
+    else if name is 'bugalteriya'
+      'Bugalteriya'
+    else
+      ''
+
+  vm.getDocumentsName = (name) ->
+    if name is 'lab'
+      'Labaratoriya'
+    else if name is 'practice'
+      'Amaliyot'
+    else if name is 'independent'
+      'Mustaqil ish'
+    else if name is 'induvidual'
+      'Induvidual loyiha'
+    else if name is 'bmi'
+      'BMI'
+    else
+      ''
 
   vm.delete = ->
     if window.confirm(" Do you want to delete it?" )

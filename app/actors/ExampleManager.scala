@@ -39,6 +39,12 @@ class ExampleManager @Inject()(val environment: Environment,
     case GetDocuments =>
       getDocuments.pipeTo(sender())
 
+    case GetDocumentsBySection(section) =>
+      getDocumentsBySection(section).pipeTo(sender())
+
+    case GetDocumentsByDocType(docType) =>
+      getDocumentsByDocType(docType).pipeTo(sender())
+
     case _ => log.info(s"received unknown message")
   }
 
@@ -48,6 +54,14 @@ class ExampleManager @Inject()(val environment: Environment,
 
   private def getDocuments: Future[Seq[Documents]] = {
     documentsDao.getDocuments
+  }
+
+  private def getDocumentsBySection(section: Option[String] = None): Future[Seq[Documents]] = {
+    documentsDao.getDocumentsBySection(section)
+  }
+
+  private def getDocumentsByDocType(docType: String): Future[Seq[Documents]] = {
+    documentsDao.getDocumentsByDocType(docType)
   }
 
   private def create(data: Example): Future[Int] = {

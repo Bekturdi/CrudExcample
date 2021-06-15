@@ -1,73 +1,43 @@
 @import views.html.main
 @this(webJarsUtil: org.webjars.play.WebJarsUtil)
 @()
-  @main("Home Page", webJarsUtil) {
+@main("Home Page", webJarsUtil) {
   <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <div class="row mt-5">
-          <div class="col-md-3">
-              <!-- Button trigger modal -->
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#document-save">
-              Hujjat qo`shish +
-            </button>
-
-              <!-- Modal -->
-            <div class="modal fade" id="document-save" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-              <div class="modal-dialog " role="document" style="max-width: 580px;">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Yangi hujjat</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
-                  </div>
-                  <div class="modal-body">
-                    <div class="container">
-                      <form>
-                        <div class="form-group row">
-                          <label for="bolim" class="col-sm-3 col-form-label text-right">Bo`lim:</label>
-                          <div class="col-sm-9">
-                            <select class="form-control" data-bind="value: vm.documents.section" id="bolim">
-                              <option value="tanlang">Tanlang</option>
-                              <option value="teacher">Professor-O`qtuvchilar</option>
-                              <option value="student">Talabalar</option>
-                              <option value="scientificWorks">Ilmiy ishlar</option>
-                              <option value="akt">AKT</option>
-                              <option value="kafedralar">Kafedralar</option>
-                              <option value="bugalteriya">Bugalteriya</option>
-                              <option value="boshqarma">Boshqarma</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div class="form-group row">
-                          <label for="type" class="col-sm-3 col-form-label text-right">Hujjat turi:</label>
-                          <div class="col-sm-9">
-                            <select class="form-control" data-bind="value: vm.documents.documentType" id="type">
-                              <option value="tanlang">Tanlang</option>
-                              <option value="lab">Labaratoriya</option>
-                              <option value="practice">Amaliyot</option>
-                              <option value="independent">Mustaqil ish</option>
-                              <option value="induvidual">Induvidual loyiha</option>
-                              <option value="bmi">BMI</option>
-                              <option value="boshqa">Boshqa</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div class="form-group row" data-bind="visible: vm.documents.documentType() == 'boshqa'">
-                          <div class="col-sm-9 offset-sm-3">
-                            <input type="text" class="form-control" data-bind="value: vm.documents.subDocumentType" placeholder="Hujjat turi">
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" data-bind="click: vm.saveDocument" class="btn btn-primary">Saqlash</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+    <div class="row mt-5">
+      <div class="col-md-2">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-bind="click: vm.addDocuments">
+          Hujjat qo`shish +
+        </button>
+      </div>
+      <div class="col-md-4">
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label text-right">Bo`lim:</label>
+          <div class="col-sm-9">
+            <select class="form-control" data-bind="value: vm.filter.section" >
+              <option value="all">Hammasi</option>
+              <option value="teacher">Professor-O`qtuvchilar</option>
+              <option value="student">Talabalar</option>
+              <option value="scientificWorks">Ilmiy ishlar</option>
+              <option value="akt">AKT</option>
+              <option value="kafedralar">Kafedralar</option>
+              <option value="bugalteriya">Bugalteriya</option>
+              <option value="boshqarma">Boshqarma</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-5">
+        <div class="form-group row">
+          <label for="type" class="col-sm-3 col-form-label text-right">Hujjat turi:</label>
+          <div class="col-sm-9">
+            <select class="form-control" data-bind="value: vm.filter.documentType" id="type">
+              <option value="all">Hammasi</option>
+              <option value="lab">Labaratoriya</option>
+              <option value="practice">Amaliyot</option>
+              <option value="independent">Mustaqil ish</option>
+              <option value="induvidual">Induvidual loyiha</option>
+              <option value="bmi">BMI</option>
+            </select>
           </div>
         </div>
       </div>
@@ -91,8 +61,8 @@
               <tr>
                 <td data-bind="text: $data.id"></td>
                 <td data-bind="text: $root.vm.convertIntToDateTime($data.createAt)"></td>
-                <td data-bind="text: $data.section"></td>
-                <td data-bind="text: $data.documentType == 'boshqa' ? $data.subDocumentType : $data.documentType"></td>
+                <td data-bind="text: $root.vm.getSectionName($data.section)"></td>
+                <td data-bind="text: $data.documentType == 'boshqa' ? $data.subDocumentType : $root.vm.getDocumentsName($data.documentType)"></td>
               </tr>
             </tbody>
           </table>
@@ -101,157 +71,211 @@
     </div>
 
   </div>
-  </div>
 
-    @*<div class="container">
-      <div class="row">
-        <div class="offset-3 col-md-9 mt-5  ">
-            <!-- Button trigger modal addUser-->
-          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUser">
-            Add New User
+    <!-- Modal -->
+  <div class="modal fade" id="document-save" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog " role="document" style="max-width: 580px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Yangi hujjat</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
           </button>
-            <!-- Button trigger modal updateUser-->
-          <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#updateUser">
-            Update User
-          </button>
-            <!-- Button trigger modal delete User-->
-          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteUser">
-            Delete User
-          </button>
-          <button data-bind="click: vm.getAllNames" class="btn btn-success">Get User</button>
         </div>
-      </div>
-      <div class="row">
-        <div class="offset-2 col-md-8 mt-5 text-center">
-          <table class="table table-bordered table-hover mt-5" data-bind=" vm.getList().length > 0">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Tel</th>
-                <th>Age</th>
-                <th>Address</th>
-              </tr>
-            </thead>
-            <tbody data-bind="foreach: vm.getList">
-              <tr>
-                <td data-bind="text: $data.id"></td>
-                <td data-bind="text: $data.name"></td>
-                <td data-bind="text: $data.tel"></td>
-                <td data-bind="text: $data.age"></td>
-                <td data-bind="text: $data.address"></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-      <!-- Modal Add User -->
-    <div class="modal fade" id="addUser" tabindex="-1" role="dialog" aria-labelledby="addUserTitle" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLongTitle">Add User</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form action="" class="m-4">
-              <div class="form-group">
-                <label for="name" >Name: </label>
-                <input class="form-control" type="text" id="name" data-bind="value: vm.name">
-              </div>
-              <div class="form-group">
-                <label for="tel" >Tel: </label>
-                <input class="form-control" type="text" id="tel" data-bind="value: vm.tel">
-              </div>
-              <div class="form-group">
-                <label for="age" >Age: </label>
-                <input class="form-control" type="text" id="age" data-bind="value: vm.age">
-              </div>
-              <div class="form-group">
-                <label for="age" >Address: </label>
-                <input class="form-control" type="text" id="address" data-bind="value: vm.address">
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button data-bind="click: vm.onSubmit" class="btn btn-success ">
-              Add User</button>
-          </div>
-        </div>
-      </div>
-    </div>
-      <!-- Modal Update User -->
-    <div class="modal fade" id="updateUser" tabindex="-1" role="dialog" aria-labelledby="updateUserTitle" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="updateUserLongTitle">Update User</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form action="" class="m-4">
-              <div class="form-group ">
-                <label for="idForUpdate" >ID: </label>
-                <input class="form-control " type="text" id="idForUpdate" data-bind="value: vm.id">
-              </div>
-              <div class="form-group ">
-                <label for="nameForUpdate" >Name: </label>
-                <input class="form-control " type="text" id="nameForUpdate" data-bind="value: vm.name">
-              </div>
-              <div class="form-group ">
-                <label for="telForUpdate" >Tel: </label>
-                <input class="form-control " type="text" id="telForUpdate" data-bind="value: vm.tel">
-              </div>
-              <div class="form-group">
-                <label for="ageForUpdate" >Age: </label>
-                <input class="form-control" type="text" id="ageForUpdate" data-bind="value: vm.age">
-              </div>
-              <div class="form-group">
-                <label for="addressForUpdate" >Address: </label>
-                <input class="form-control" type="text" id="addressForUpdate" data-bind="value: vm.address">
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button data-bind="click: vm.update" class=" btn btn-success">Update User</button>
-          </div>
-        </div>
-      </div>
-    </div>
-      <!-- Modal Delete User -->
-    <div class="modal fade" id="deleteUser" tabindex="-1" role="dialog" aria-labelledby="deleteUserTitle" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="deleteUserLongTitle">Add User</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <form action="" class="m-4">
+        <div class="modal-body">
+          <div class="container">
+            <form>
               <div class="form-group row">
-                <label for="id" class="">ID: </label>
-                <input class="form-control " type="text" id="id" data-bind="value: vm.id">
+                <label for="bolim" class="col-sm-3 col-form-label text-right">Bo`lim:</label>
+                <div class="col-sm-9">
+                  <select class="form-control" data-bind="value: vm.documents.section" id="bolim">
+                    <option value="tanlang">Tanlang</option>
+                    <option value="teacher">Professor-O`qtuvchilar</option>
+                    <option value="student">Talabalar</option>
+                    <option value="scientificWorks">Ilmiy ishlar</option>
+                    <option value="akt">AKT</option>
+                    <option value="kafedralar">Kafedralar</option>
+                    <option value="bugalteriya">Bugalteriya</option>
+                    <option value="boshqarma">Boshqarma</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="type" class="col-sm-3 col-form-label text-right">Hujjat turi:</label>
+                <div class="col-sm-9">
+                  <select class="form-control" data-bind="value: vm.documents.documentType" id="type">
+                    <option value="tanlang">Tanlang</option>
+                    <option value="lab">Labaratoriya</option>
+                    <option value="practice">Amaliyot</option>
+                    <option value="independent">Mustaqil ish</option>
+                    <option value="induvidual">Induvidual loyiha</option>
+                    <option value="bmi">BMI</option>
+                    <option value="boshqa">Boshqa</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row" data-bind="visible: vm.documents.documentType() == 'boshqa'">
+                <div class="col-sm-9 offset-sm-3">
+                  <input type="text" class="form-control" data-bind="value: vm.documents.subDocumentType" placeholder="Hujjat turi">
+                </div>
               </div>
             </form>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary " data-dismiss="modal">Close</button>
-            <button data-bind="click: vm.delete " class="btn btn-success">
-              Delete User</button>
-          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" data-bind="click: vm.saveDocument" class="btn btn-success">Saqlash</button>
         </div>
       </div>
     </div>
-*@
+  </div>
+  @*<div class="container">
+  <div class="row">
+  <div class="offset-3 col-md-9 mt-5 ">
+  <!-- Button trigger modal addUser-->
+  <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addUser">
+  Add New User
+  </button>
+  <!-- Button trigger modal updateUser-->
+  <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#updateUser">
+  Update User
+  </button>
+  <!-- Button trigger modal delete User-->
+  <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteUser">
+  Delete User
+  </button>
+  <button data-bind="click: vm.getAllNames" class="btn btn-success">Get User</button>
+  </div>
+  </div>
+  <div class="row">
+  <div class="offset-2 col-md-8 mt-5 text-center">
+  <table class="table table-bordered table-hover mt-5" data-bind=" vm.getList().length > 0">
+  <thead>
+  <tr>
+  <th>ID</th>
+  <th>Name</th>
+  <th>Tel</th>
+  <th>Age</th>
+  <th>Address</th>
+  </tr>
+  </thead>
+  <tbody data-bind="foreach: vm.getList">
+  <tr>
+  <td data-bind="text: $data.id"></td>
+  <td data-bind="text: $data.name"></td>
+  <td data-bind="text: $data.tel"></td>
+  <td data-bind="text: $data.age"></td>
+  <td data-bind="text: $data.address"></td>
+  </tr>
+  </tbody>
+  </table>
+  </div>
+  </div>
+  </div>
 
-  }
+  <!-- Modal Add User -->
+  <div class="modal fade" id="addUser" tabindex="-1" role="dialog" aria-labelledby="addUserTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+  <div class="modal-content">
+  <div class="modal-header">
+  <h5 class="modal-title" id="exampleModalLongTitle">Add User</h5>
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+  <span aria-hidden="true">&times;</span>
+  </button>
+  </div>
+  <div class="modal-body">
+  <form action="" class="m-4">
+  <div class="form-group">
+  <label for="name" >Name: </label>
+  <input class="form-control" type="text" id="name" data-bind="value: vm.name">
+  </div>
+  <div class="form-group">
+  <label for="tel" >Tel: </label>
+  <input class="form-control" type="text" id="tel" data-bind="value: vm.tel">
+  </div>
+  <div class="form-group">
+  <label for="age" >Age: </label>
+  <input class="form-control" type="text" id="age" data-bind="value: vm.age">
+  </div>
+  <div class="form-group">
+  <label for="age" >Address: </label>
+  <input class="form-control" type="text" id="address" data-bind="value: vm.address">
+  </div>
+  </form>
+  </div>
+  <div class="modal-footer">
+  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+  <button data-bind="click: vm.onSubmit" class="btn btn-success ">
+  Add User</button>
+  </div>
+  </div>
+  </div>
+  </div>
+  <!-- Modal Update User -->
+  <div class="modal fade" id="updateUser" tabindex="-1" role="dialog" aria-labelledby="updateUserTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+  <div class="modal-content">
+  <div class="modal-header">
+  <h5 class="modal-title" id="updateUserLongTitle">Update User</h5>
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+  <span aria-hidden="true">&times;</span>
+  </button>
+  </div>
+  <div class="modal-body">
+  <form action="" class="m-4">
+  <div class="form-group ">
+  <label for="idForUpdate" >ID: </label>
+  <input class="form-control " type="text" id="idForUpdate" data-bind="value: vm.id">
+  </div>
+  <div class="form-group ">
+  <label for="nameForUpdate" >Name: </label>
+  <input class="form-control " type="text" id="nameForUpdate" data-bind="value: vm.name">
+  </div>
+  <div class="form-group ">
+  <label for="telForUpdate" >Tel: </label>
+  <input class="form-control " type="text" id="telForUpdate" data-bind="value: vm.tel">
+  </div>
+  <div class="form-group">
+  <label for="ageForUpdate" >Age: </label>
+  <input class="form-control" type="text" id="ageForUpdate" data-bind="value: vm.age">
+  </div>
+  <div class="form-group">
+  <label for="addressForUpdate" >Address: </label>
+  <input class="form-control" type="text" id="addressForUpdate" data-bind="value: vm.address">
+  </div>
+  </form>
+  </div>
+  <div class="modal-footer">
+  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+  <button data-bind="click: vm.update" class=" btn btn-success">Update User</button>
+  </div>
+  </div>
+  </div>
+  </div>
+  <!-- Modal Delete User -->
+  <div class="modal fade" id="deleteUser" tabindex="-1" role="dialog" aria-labelledby="deleteUserTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+  <div class="modal-content">
+  <div class="modal-header">
+  <h5 class="modal-title" id="deleteUserLongTitle">Add User</h5>
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+  <span aria-hidden="true">&times;</span>
+  </button>
+  </div>
+  <div class="modal-body">
+  <form action="" class="m-4">
+  <div class="form-group row">
+  <label for="id" class="">ID: </label>
+  <input class="form-control " type="text" id="id" data-bind="value: vm.id">
+  </div>
+  </form>
+  </div>
+  <div class="modal-footer">
+  <button type="button" class="btn btn-secondary " data-dismiss="modal">Close</button>
+  <button data-bind="click: vm.delete " class="btn btn-success">
+  Delete User</button>
+  </div>
+  </div>
+  </div>
+  </div>
+  *@
+}

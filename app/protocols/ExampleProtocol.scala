@@ -34,5 +34,16 @@ object ExampleProtocol {
   case class CmdDocuments(documents: Documents)
 
   implicit val documentFormat: OFormat[Documents] = Json.format[Documents]
+
+  case class GetDocumentsBySection(section: Option[String] = None)
+
+  case class GetDocumentsByDocType(docType: String)
+
+  case class ReportForm(
+                       section: Option[String] = None,
+                       documentType: Option[String] = None
+                       )
+
+  implicit val reportFormFormat: OFormat[ReportForm] = Json.format[ReportForm]
 }
 

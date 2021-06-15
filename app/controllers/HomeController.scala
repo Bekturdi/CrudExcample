@@ -1,18 +1,18 @@
 package controllers
 
 import akka.actor.ActorRef
+import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
-
-import javax.inject._
 import org.webjars.play.WebJarsUtil
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
 import protocols.ExampleProtocol._
+import scalaz.Scalaz.ToOptionIdOps
 import views.html._
-import akka.pattern.ask
 
 import java.util.Date
+import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.DurationInt
 
@@ -50,7 +50,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getDocuments: Action[AnyContent] = Action.async {
-    (exampleManager ? GetDocuments).mapTo[Seq[Documents]].map{  doc =>
+    (exampleManager ? GetDocuments).mapTo[Seq[Documents]].map { doc =>
       Ok(Json.toJson(doc))
     }
   }
@@ -67,15 +67,27 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def getNames: Action[AnyContent] = Action.async {
-    (exampleManager ? GetList).mapTo[Seq[Example]].map{ name =>
+    (exampleManager ? GetList).mapTo[Seq[Example]].map { name =>
       Ok(Json.toJson(name))
+    }
+  }
+
+  def getDocumentsBySection(section: String): Action[AnyContent] = Action.async { implicit request =>
+    (exampleManager ? GetDocumentsBySection(section.some)).mapTo[Seq[Documents]].map { res =>
+      Ok(Json.toJson(res))
+    }
+  }
+
+  def getDocumentsByDocType(docType: String): Action[AnyContent] = Action.async { implicit request =>
+    (exampleManager ? GetDocumentsByDocType(docType)).mapTo[Seq[Documents]].map { res =>
+      Ok(Json.toJson(res))
     }
   }
 
   def delete = Action.async(parse.json) { implicit request =>
     val id = (request.body \ "id").as[Int]
-    (exampleManager ? Delete(id)).mapTo[Int].map{ i =>
-      if (i != 0){
+    (exampleManager ? Delete(id)).mapTo[Int].map { i =>
+      if (i != 0) {
         Ok(Json.toJson(id + " raqamli ism o`chirildi"))
       }
       else {
@@ -90,8 +102,8 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     val tel = (request.body \ "tel").as[String]
     val age = (request.body \ "age").as[String]
     val address = (request.body \ "address").as[String]
-    (exampleManager ? Update(Example(Some(id), name, tel, age, address))).mapTo[Int].map{ i =>
-      if (i != 0){
+    (exampleManager ? Update(Example(Some(id), name, tel, age, address))).mapTo[Int].map { i =>
+      if (i != 0) {
         Ok(Json.toJson(id + " raqamli ism yangilandi"))
       }
       else {
