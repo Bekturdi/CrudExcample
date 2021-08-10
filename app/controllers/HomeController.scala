@@ -5,7 +5,9 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import org.webjars.play.WebJarsUtil
+import play.api.{Environment, Mode}
 import play.api.libs.json.{JsValue, Json}
+import play.api.libs.ws.WSClient
 import play.api.mvc._
 import protocols.ExampleProtocol._
 import scalaz.Scalaz.ToOptionIdOps
@@ -21,7 +23,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                implicit val webJarsUtil: WebJarsUtil,
                                @Named("example-manager") val exampleManager: ActorRef,
                                indexTemplate: index,
-                               loginTemplate: login
+                               loginTemplate: login,
+                               ws: WSClient,
+                               environment: Environment
                               )
                               (implicit val ec: ExecutionContext)
   extends BaseController with LazyLogging {
@@ -125,6 +129,61 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         Ok("Bunday raqamli ism topilmadi")
       }
     }
+  }
+
+  def returnCorrespondingResponseByKey: Action[JsValue] = Action.async(parse.json) { implicit request => {
+    (request.body \ "secretKey").asOpt[String] match {
+      case Some(sk) if sk == "yei6heK3oo" =>
+        val requestedData = (request.body \ "requestedData").as[String]
+        val equipmentNumber = (request.body \ "equipment_number").asOpt[String]
+        requestedData match {
+          case "unatedRentalsInfo" =>
+            if (equipmentNumber.exists(_.trim.nonEmpty)) {
+              getUnitedRentalsInfoByEquipmentId(equipmentNumber.get)
+            } else {
+              Future.successful(Ok(Json.obj("error" -> "Couldn't get Customer info by Equipment ID")))
+            }
+        }
+      case _ => Future.successful(Ok(Json.obj("error" -> "Invalid token")))
+    }
+  }
+  }
+
+  private def requestDellBoomi(equipmentNumber: String): Future[JsValue] = {
+    val IsProdMode = environment.mode == Mode.Prod
+    val url = if (IsProdMode) "https://dry-anchorage-45320.herokuapp.com/unitedrentals/dell-boomi/stub-api" else "http://localhost:9006/unitedrentals/dell-boomi/stub-api"
+    ws.url(url)
+      .post(Json.toJson(equipmentNumber))
+      .map { res =>
+        res.json
+      }
+
+  }
+
+  private def getUnitedRentalsInfoByEquipmentId(equipmentNumber: String): Future[Result] = {
+    requestDellBoomi(equipmentNumber).map{ res =>
+      Ok(res)
+    }
+  }
+
+  def stubApiDellBoomi: Action[JsValue] = Action.async(parse.json) { implicit request =>
+    val json =
+      """
+        {
+          "fullname": "John Dao",
+          "phoneNumber": "1221122212",
+          "email": "daodao@dao.dao",
+          "company": "Company B",
+          "jobsiteAddress": "Street 12 Company B",
+          "dateTime": "08-05-2021 00:00",
+          "siteContact": "32323232323",
+          "locationOfEquipment": "location B V",
+          "specialInstruction": "instruction V1",
+          "keyLocation": "key location",
+          "hoursOfAccess": "12 hours"
+        }
+        """
+      Future.successful(Ok(json))
   }
 
 
