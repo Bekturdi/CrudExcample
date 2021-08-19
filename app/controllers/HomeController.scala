@@ -5,18 +5,18 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import org.webjars.play.WebJarsUtil
-import play.api.{Environment, Mode}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
+import play.api.{Environment, Mode}
 import protocols.ExampleProtocol._
 import scalaz.Scalaz.ToOptionIdOps
 import views.html._
 
 import java.util.Date
 import javax.inject._
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.DurationInt
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class HomeController @Inject()(val controllerComponents: ControllerComponents,
@@ -31,6 +31,50 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   extends BaseController with LazyLogging {
 
   implicit val defaultTimeout: Timeout = Timeout(60.seconds)
+  private val jsonV1 =
+    """
+        {
+          "phoneNumber": "303-892-3965",
+          "email": "mmaxwell@bandh.com",
+          "company": "B&H Construction",
+          "jobsiteAddress": "2682 Lyon Avenue, Hartland, WI",
+          "siteContactName": "Mark Maxwell",
+          "locationOfEquipment": "Behind Building",
+        }
+        """
+  private val jsonV2 =
+    """
+        {
+          "phoneNumber": "412-902-9642",
+          "email": "CarlABenjamin@rhyta.com",
+          "company": "Road & Highway Transport",
+          "jobsiteAddress": "1861 Havanna Street, Winston Salem, NC",
+          "siteContactName": "Carl Benjamin",
+          "locationOfEquipment": "Equipment Lot"
+        }
+        """
+  private val jsonV3 =
+    """
+        {
+          "jobsiteAddress": "3274 Mesa Drive, Las Vegas",
+          "locationOfEquipment": "Parking lot"
+          "company": "Stage & Screen Lighting",
+          "siteContactName": "Jeffrey Akin",
+          "phoneNumber": "817-967-1777",
+          "email": "JeffreyAkin@stagelight.com",
+        }
+        """
+  private val jsonV4 =
+    """
+        {
+          "phoneNumber": "845-308-3989",
+          "email": "HMorales@futuredata.com",
+          "company": "Future Data Corp",
+          "jobsiteAddress": "4657 Ella Street, Palo Alto, CA",
+          "siteContactName": "Howard Morales",
+          "locationOfEquipment": "Utility area"
+        }
+        """
 
   def login: Action[AnyContent] = Action {
     Ok(loginTemplate())
@@ -149,6 +193,12 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
   }
 
+  private def getUnitedRentalsInfoByEquipmentId(equipmentNumber: String): Future[Result] = {
+    requestDellBoomi(equipmentNumber).map { res =>
+      Ok(res)
+    }
+  }
+
   private def requestDellBoomi(equipmentNumber: String): Future[JsValue] = {
     val IsProdMode = environment.mode == Mode.Prod
     val url = if (IsProdMode) "https://dry-anchorage-45320.herokuapp.com/unitedrentals/dell-boomi/stub-api" else "http://localhost:9006/unitedrentals/dell-boomi/stub-api"
@@ -157,33 +207,20 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
       .map { res =>
         res.json
       }
-
-  }
-
-  private def getUnitedRentalsInfoByEquipmentId(equipmentNumber: String): Future[Result] = {
-    requestDellBoomi(equipmentNumber).map{ res =>
-      Ok(res)
-    }
   }
 
   def stubApiDellBoomi: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    val json =
-      """
-        {
-          "fullname": "John Dao",
-          "phoneNumber": "1221122212",
-          "email": "daodao@dao.dao",
-          "company": "Company B",
-          "jobsiteAddress": "Street 12 Company B",
-          "dateTime": "08-05-2021 00:00",
-          "siteContact": "32323232323",
-          "locationOfEquipment": "location B V",
-          "specialInstruction": "instruction V1",
-          "keyLocation": "key location",
-          "hoursOfAccess": "12 hours"
-        }
-        """
-      Future.successful(Ok(json))
+    val body = request.body
+    val equipmentNumber = (body \ "equipmentNumber").as[String]
+
+    val result = equipmentNumber match {
+      case "604661" => jsonV1
+      case "1089992" => jsonV2
+      case "10522733" => jsonV3
+      case "102839344" => jsonV4
+      case _ => jsonV1
+    }
+    Future.successful(Ok(result))
   }
 
 
