@@ -39,7 +39,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
           "company": "B&H Construction",
           "jobsiteAddress": "2682 Lyon Avenue, Hartland, WI",
           "siteContactName": "Mark Maxwell",
-          "locationOfEquipment": "Behind Building",
+          "locationOfEquipment": "Behind Building"
         }
         """
   private val jsonV2 =
@@ -61,7 +61,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
           "company": "Stage & Screen Lighting",
           "siteContactName": "Jeffrey Akin",
           "phoneNumber": "817-967-1777",
-          "email": "JeffreyAkin@stagelight.com",
+          "email": "JeffreyAkin@stagelight.com"
         }
         """
   private val jsonV4 =
