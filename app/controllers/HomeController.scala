@@ -5,7 +5,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import org.webjars.play.WebJarsUtil
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsValue, Json, OFormat}
 import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.{Environment, Mode}
@@ -208,8 +208,9 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   private def requestDellBoomi(equipmentNumber: String): Future[JsValue] = {
     val IsProdMode = environment.mode == Mode.Prod
     val url = if (IsProdMode) "https://dry-anchorage-45320.herokuapp.com/unitedrentals/dell-boomi/stub-api" else "http://localhost:9006/unitedrentals/dell-boomi/stub-api"
+    val eqn = EquipmentNumber(equipmentNumber)
     ws.url(url)
-      .post(Json.toJson(equipmentNumber))
+      .post(Json.toJson(eqn))
       .map { res =>
         res.json
       }
@@ -218,7 +219,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   def stubApiDellBoomi: Action[JsValue] = Action.async(parse.json) { implicit request =>
     try {
       val body = request.body
-      val equipmentNumber = (body \ "equipmentNumber").as[String]
+      val equipmentNumber = (body \ "number").as[String]
       logger.debug(s"equipmentNumber: $equipmentNumber")
 
       val result = equipmentNumber match {

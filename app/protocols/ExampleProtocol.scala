@@ -49,5 +49,8 @@ object ExampleProtocol {
   implicit val reportFormFormat: OFormat[ReportForm] = Json.format[ReportForm]
 
   case class DeleteDocuments(id: Int)
+
+  case class EquipmentNumber(number: String)
+  implicit val equipmentNumberFormat: OFormat[EquipmentNumber] = Json.format[EquipmentNumber]
 }
 
