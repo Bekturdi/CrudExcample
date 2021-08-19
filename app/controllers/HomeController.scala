@@ -176,19 +176,25 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def returnCorrespondingResponseByKey: Action[JsValue] = Action.async(parse.json) { implicit request => {
-    (request.body \ "secretKey").asOpt[String] match {
-      case Some(sk) if sk == "yei6heK3oo" =>
-        val requestedData = (request.body \ "requestedData").as[String]
-        val equipmentNumber = (request.body \ "equipment_number").asOpt[String]
-        requestedData match {
-          case "unatedRentalsInfo" =>
-            if (equipmentNumber.exists(_.trim.nonEmpty)) {
-              getUnitedRentalsInfoByEquipmentId(equipmentNumber.get)
-            } else {
-              Future.successful(Ok(Json.obj("error" -> "Couldn't get Customer info by Equipment ID")))
-            }
-        }
-      case _ => Future.successful(Ok(Json.obj("error" -> "Invalid token")))
+    try {
+      (request.body \ "secretKey").asOpt[String] match {
+        case Some(sk) if sk == "yei6heK3oo" =>
+          val requestedData = (request.body \ "requestedData").as[String]
+          val equipmentNumber = (request.body \ "equipment_number").asOpt[String]
+          requestedData match {
+            case "unatedRentalsInfo" =>
+              if (equipmentNumber.exists(_.trim.nonEmpty)) {
+                getUnitedRentalsInfoByEquipmentId(equipmentNumber.get)
+              } else {
+                Future.successful(Ok(Json.obj("error" -> "Couldn't get Customer info by Equipment ID")))
+              }
+          }
+        case _ => Future.successful(Ok(Json.obj("error" -> "Invalid token")))
+      }
+    } catch {
+      case e: Throwable =>
+        logger.debug(s"Error response KEY: $e")
+        Future.successful(BadRequest(s"$e"))
     }
   }
   }
@@ -210,17 +216,24 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def stubApiDellBoomi: Action[JsValue] = Action.async(parse.json) { implicit request =>
-    val body = request.body
-    val equipmentNumber = (body \ "equipmentNumber").as[String]
+    try {
+      val body = request.body
+      val equipmentNumber = (body \ "equipmentNumber").as[String]
+      logger.debug(s"equipmentNumber: $equipmentNumber")
 
-    val result = equipmentNumber match {
-      case "604661" => jsonV1
-      case "1089992" => jsonV2
-      case "10522733" => jsonV3
-      case "102839344" => jsonV4
-      case _ => jsonV1
+      val result = equipmentNumber match {
+        case "604661" => jsonV1
+        case "1089992" => jsonV2
+        case "10522733" => jsonV3
+        case "102839344" => jsonV4
+        case _ => jsonV1
+      }
+      Future.successful(Ok(result))
+    } catch {
+      case e: Throwable =>
+        logger.error(s"Error stub api: $e")
+        Future.successful(BadRequest(s"$e"))
     }
-    Future.successful(Ok(result))
   }
 
 
