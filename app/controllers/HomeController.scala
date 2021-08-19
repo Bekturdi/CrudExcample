@@ -57,7 +57,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     """
         {
           "jobsiteAddress": "3274 Mesa Drive, Las Vegas",
-          "locationOfEquipment": "Parking lot"
+          "locationOfEquipment": "Parking lot",
           "company": "Stage & Screen Lighting",
           "siteContactName": "Jeffrey Akin",
           "phoneNumber": "817-967-1777",
