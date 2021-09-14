@@ -212,24 +212,24 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   private def requestDellBoomi(equipmentNumber: String): Future[JsValue] = {
-//    val IsProdMode = environment.mode == Mode.Prod
-//    https://dry-anchorage-45320.herokuapp.com/unitedrentals/dell-boomi/stub-api
-//    val url = if (IsProdMode) s"https://ODATASTAGE.ur.com:9090/ws/rest/smsbot/rental/pickuprequests?equipmentId=$equipmentNumber&type=1" else "http://localhost:9006/unitedrentals/dell-boomi/stub-api"
-//    val eqn = EquipmentNumber(equipmentNumber)
-//    ws.url(url)
-//      .get()
-//      .map { res =>
-//        res.json
-//      }
-    val url = dellBoomiUrl.replaceAllLiterally("EQUIPMENT_ID", equipmentNumber)
-    logger.debug(s"Request, Equipment Number: $equipmentNumber")
+    val IsProdMode = environment.mode == Mode.Prod
+    val url = if (IsProdMode) "https://dry-anchorage-45320.herokuapp.com/unitedrentals/dell-boomi/stub-api" else "http://localhost:9006/unitedrentals/dell-boomi/stub-api"
+    val eqn = EquipmentNumber(equipmentNumber)
     ws.url(url)
-      .withAuth(dellBoomiLogin, dellBoomiPassword, BASIC)
-      .get()
+      .post(Json.toJson(eqn))
       .map { res =>
         logger.debug(s"DellBoomi Result Json: ${res.json}")
         res.json
       }
+//    val url = dellBoomiUrl.replaceAllLiterally("EQUIPMENT_ID", equipmentNumber)
+//    logger.debug(s"Request, Equipment Number: $equipmentNumber")
+//    ws.url(url)
+//      .withAuth(dellBoomiLogin, dellBoomiPassword, BASIC)
+//      .get()
+//      .map { res =>
+//        logger.debug(s"DellBoomi Result Json: ${res.json}")
+//        res.json
+//      }
   }
 
   def stubApiDellBoomi: Action[JsValue] = Action.async(parse.json) { implicit request =>
