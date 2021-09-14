@@ -6,9 +6,10 @@ import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import org.webjars.play.WebJarsUtil
 import play.api.libs.json.{JsValue, Json, OFormat}
+import play.api.libs.ws.WSAuthScheme.BASIC
 import play.api.libs.ws.WSClient
 import play.api.mvc._
-import play.api.{Environment, Mode}
+import play.api.{Configuration, Environment, Mode}
 import protocols.ExampleProtocol._
 import scalaz.Scalaz.ToOptionIdOps
 import views.html._
@@ -25,12 +26,17 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                indexTemplate: index,
                                loginTemplate: login,
                                ws: WSClient,
-                               environment: Environment
+                               environment: Environment,
+                               val configuration: Configuration,
                               )
                               (implicit val ec: ExecutionContext)
   extends BaseController with LazyLogging {
 
   implicit val defaultTimeout: Timeout = Timeout(60.seconds)
+  private val dellBoomiCredentials                = configuration.get[Configuration]("dell-boomi-credentials")
+  private val dellBoomiLogin = dellBoomiCredentials.get[String]("login")
+  private val dellBoomiPassword = dellBoomiCredentials.get[String]("password")
+  private val dellBoomiUrl = dellBoomiCredentials.get[String]("dell-boomi-url")
   private val jsonV1 =
     """
         {
@@ -206,12 +212,22 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   private def requestDellBoomi(equipmentNumber: String): Future[JsValue] = {
-    val IsProdMode = environment.mode == Mode.Prod
-    val url = if (IsProdMode) "https://dry-anchorage-45320.herokuapp.com/unitedrentals/dell-boomi/stub-api" else "http://localhost:9006/unitedrentals/dell-boomi/stub-api"
-    val eqn = EquipmentNumber(equipmentNumber)
+//    val IsProdMode = environment.mode == Mode.Prod
+//    https://dry-anchorage-45320.herokuapp.com/unitedrentals/dell-boomi/stub-api
+//    val url = if (IsProdMode) s"https://ODATASTAGE.ur.com:9090/ws/rest/smsbot/rental/pickuprequests?equipmentId=$equipmentNumber&type=1" else "http://localhost:9006/unitedrentals/dell-boomi/stub-api"
+//    val eqn = EquipmentNumber(equipmentNumber)
+//    ws.url(url)
+//      .get()
+//      .map { res =>
+//        res.json
+//      }
+    val url = dellBoomiUrl.replaceAllLiterally("EQUIPMENT_ID", equipmentNumber)
+    logger.debug(s"Request, Equipment Number: $equipmentNumber")
     ws.url(url)
-      .post(Json.toJson(eqn))
+      .withAuth(dellBoomiLogin, dellBoomiPassword, BASIC)
+      .get()
       .map { res =>
+        logger.debug(s"DellBoomi Result Json: ${res.json}")
         res.json
       }
   }
