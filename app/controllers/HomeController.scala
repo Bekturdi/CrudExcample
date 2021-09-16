@@ -182,6 +182,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
   }
 
   def returnCorrespondingResponseByKey: Action[JsValue] = Action.async(parse.json) { implicit request => {
+    println(s"Start .....")
     try {
       (request.body \ "secretKey").asOpt[String] match {
         case Some(sk) if sk == "yei6heK3oo" =>
@@ -196,15 +197,15 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                 Future.successful(Ok(Json.obj("error" -> "Couldn't get Customer info by Equipment ID")))
               }
             case "updateContactInfo" =>
-              logger.debug(s"UR Data: $urData")
+              println(s"UR Data: $urData")
               Future.successful(Ok("UR Data"))
           }
         case _ => Future.successful(Ok(Json.obj("error" -> "Invalid token")))
       }
     } catch {
       case e: Throwable =>
-        logger.debug(s"Error response KEY: $e")
-        Future.successful(BadRequest(s"$e"))
+        println(s"Error response KEY: $e")
+        Future.successful(BadRequest(s"Error: $e"))
     }
   }
   }
@@ -222,7 +223,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     ws.url(url)
       .post(Json.toJson(eqn))
       .map { res =>
-        logger.debug(s"DellBoomi Result Json: ${res.json}")
+        println(s"DellBoomi Result Json: ${res.json}")
         res.json
       }
 //    val url = dellBoomiUrl.replaceAllLiterally("EQUIPMENT_ID", equipmentNumber)
@@ -240,7 +241,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
     try {
       val body = request.body
       val equipmentNumber = (body \ "number").as[String]
-      logger.debug(s"equipmentNumber: $equipmentNumber")
+      println(s"equipmentNumber: $equipmentNumber")
 
       val result = equipmentNumber match {
         case "604661" => jsonV1
