@@ -188,7 +188,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
         case Some(sk) if sk == "yei6heK3oo" =>
           val requestedData = (request.body \ "requestedData").as[String]
           val equipmentNumber = (request.body \ "equipment_number").asOpt[String]
-          val urData = (request.body \ "urData").asOpt[JsValue]
+//          val urData = (request.body \ "urData").asOpt[JsValue]
           requestedData match {
             case "unatedRentalsInfo" =>
               if (equipmentNumber.exists(_.trim.nonEmpty)) {
@@ -197,7 +197,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                 Future.successful(Ok(Json.obj("error" -> "Couldn't get Customer info by Equipment ID")))
               }
             case "updateContactInfo" =>
-              println(s"UR Data: $urData")
+//              println(s"UR Data: $urData")
               Future.successful(Ok("UR Data"))
           }
         case _ => Future.successful(Ok(Json.obj("error" -> "Invalid token")))
