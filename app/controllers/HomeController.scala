@@ -24,8 +24,6 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents,
                                @Named("example-manager") val exampleManager: ActorRef,
                                indexTemplate: index,
                                loginTemplate: login,
-                               ws: WSClient,
-                               environment: Environment,
                                val configuration: Configuration,
                               )
                               (implicit val ec: ExecutionContext)
